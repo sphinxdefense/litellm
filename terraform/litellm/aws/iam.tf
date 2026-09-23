@@ -19,7 +19,7 @@ resource "aws_iam_role" "task_execution" {
 
 resource "aws_iam_role_policy_attachment" "task_execution" {
   role       = aws_iam_role.task_execution.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
 # User-provided extra secrets may be passed as the bare secret ARN
@@ -100,7 +100,7 @@ data "aws_iam_policy_document" "rds_iam_connect" {
   statement {
     actions = ["rds-db:connect"]
     resources = [
-      "arn:aws:rds-db:${var.region}:${data.aws_caller_identity.current.account_id}:dbuser:${aws_rds_cluster.this[0].cluster_resource_id}/${var.db_username}",
+      "arn:${data.aws_partition.current.partition}:rds-db:${var.region}:${data.aws_caller_identity.current.account_id}:dbuser:${aws_rds_cluster.this[0].cluster_resource_id}/${var.db_username}",
     ]
   }
 }
