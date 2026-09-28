@@ -142,6 +142,7 @@ resource "terraform_data" "bootstrap_db" {
       export AWS_ACCESS_KEY_ID="$${CREDENTIALS[0]}"
       export AWS_SECRET_ACCESS_KEY="$${CREDENTIALS[1]}"
       export AWS_SESSION_TOKEN="$${CREDENTIALS[2]}"
+      aws sts get-caller-identity
       task_arn=$(aws ecs run-task --region "$REGION" --cluster "$CLUSTER" \
         --launch-type FARGATE --task-definition "$TASK_DEF" \
         --network-configuration "awsvpcConfiguration={subnets=[$SUBNETS],securityGroups=[$SG],assignPublicIp=DISABLED}" \
