@@ -128,15 +128,20 @@ resource "terraform_data" "bootstrap_db" {
   provisioner "local-exec" {
     interpreter = ["bash", "-c"]
     environment = {
-      CLUSTER  = aws_ecs_cluster.this.name
-      TASK_DEF = aws_ecs_task_definition.bootstrap_db[0].arn
-      SUBNETS  = join(",", local.private_subnet_ids)
-      SG       = join(",", local.task_security_group_ids)
-      REGION   = var.region
-      LOG_GRP  = aws_cloudwatch_log_group.bootstrap_db[0].name
+      AWS_ASSUME_ROLE = var.aws_assume_role
+      CLUSTER         = aws_ecs_cluster.this.name
+      TASK_DEF        = aws_ecs_task_definition.bootstrap_db[0].arn
+      SUBNETS         = join(",", local.private_subnet_ids)
+      SG              = join(",", local.task_security_group_ids)
+      REGION          = var.region
+      LOG_GRP         = aws_cloudwatch_log_group.bootstrap_db[0].name
     }
     command = <<-EOT
       set -euo pipefail
+      CREDENTIALS=(`aws sts assume-role --role-arn "$AWS_ASSUME_ROLE" --output text`)
+      export AWS_ACCESS_KEY_ID="$${CREDENTIALS[0]}"
+      export AWS_SECRET_ACCESS_KEY="$${CREDENTIALS[1]}"
+      export AWS_SESSION_TOKEN="$${CREDENTIALS[2]}"
       task_arn=$(aws ecs run-task --region "$REGION" --cluster "$CLUSTER" \
         --launch-type FARGATE --task-definition "$TASK_DEF" \
         --network-configuration "awsvpcConfiguration={subnets=[$SUBNETS],securityGroups=[$SG],assignPublicIp=DISABLED}" \
@@ -177,15 +182,20 @@ resource "terraform_data" "migration" {
   provisioner "local-exec" {
     interpreter = ["bash", "-c"]
     environment = {
-      CLUSTER  = aws_ecs_cluster.this.name
-      TASK_DEF = aws_ecs_task_definition.migrations[0].arn
-      SUBNETS  = join(",", local.private_subnet_ids)
-      SG       = join(",", local.task_security_group_ids)
-      REGION   = var.region
-      LOG_GRP  = aws_cloudwatch_log_group.migrations[0].name
+      AWS_ASSUME_ROLE = var.aws_assume_role
+      CLUSTER         = aws_ecs_cluster.this.name
+      TASK_DEF        = aws_ecs_task_definition.migrations[0].arn
+      SUBNETS         = join(",", local.private_subnet_ids)
+      SG              = join(",", local.task_security_group_ids)
+      REGION          = var.region
+      LOG_GRP         = aws_cloudwatch_log_group.migrations[0].name
     }
     command = <<-EOT
       set -euo pipefail
+      CREDENTIALS=(`aws sts assume-role --role-arn "$AWS_ASSUME_ROLE" --output text`)
+      export AWS_ACCESS_KEY_ID="$${CREDENTIALS[0]}"
+      export AWS_SECRET_ACCESS_KEY="$${CREDENTIALS[1]}"
+      export AWS_SESSION_TOKEN="$${CREDENTIALS[2]}"
       task_arn=$(aws ecs run-task --region "$REGION" --cluster "$CLUSTER" \
         --launch-type FARGATE --task-definition "$TASK_DEF" \
         --network-configuration "awsvpcConfiguration={subnets=[$SUBNETS],securityGroups=[$SG],assignPublicIp=DISABLED}" \
