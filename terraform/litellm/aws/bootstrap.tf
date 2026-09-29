@@ -141,7 +141,8 @@ resource "terraform_data" "bootstrap_db" {
       unset AWS_SECRET_ACCESS_KEY
       unset AWS_ACCESS_KEY_ID
       unset AWS_SESSION_TOKEN
-      CREDENTIALS=(`aws sts assume-role --role-arn "$AWS_ASSUME_ROLE" --role-session-name "terraform-data-bootstrap-db-local-exec" --output text`)
+      CREDENTIALS=(`aws sts assume-role --role-arn "$AWS_ASSUME_ROLE" --role-session-name "terraform-data-bootstrap-db-local-exec" \
+        --query "[Credentials.AccessKeyId,Credentials.SecretAccessKey,Credentials.SessionToken]" --output text`)
       export AWS_ACCESS_KEY_ID="$${CREDENTIALS[0]}"
       export AWS_SECRET_ACCESS_KEY="$${CREDENTIALS[1]}"
       export AWS_SESSION_TOKEN="$${CREDENTIALS[2]}"
@@ -196,7 +197,11 @@ resource "terraform_data" "migration" {
     }
     command = <<-EOT
       set -euo pipefail
-      CREDENTIALS=(`aws sts assume-role --role-arn "$AWS_ASSUME_ROLE" --role-session-name "terraform-data-migration-local-exec" --output text`)
+      unset AWS_SECRET_ACCESS_KEY
+      unset AWS_ACCESS_KEY_ID
+      unset AWS_SESSION_TOKEN
+      CREDENTIALS=(`aws sts assume-role --role-arn "$AWS_ASSUME_ROLE" --role-session-name "terraform-data-migration-local-exec" \
+        --query "[Credentials.AccessKeyId,Credentials.SecretAccessKey,Credentials.SessionToken]" --output text`)
       export AWS_ACCESS_KEY_ID="$${CREDENTIALS[0]}"
       export AWS_SECRET_ACCESS_KEY="$${CREDENTIALS[1]}"
       export AWS_SESSION_TOKEN="$${CREDENTIALS[2]}"
