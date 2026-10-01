@@ -85,7 +85,7 @@ resource "aws_ecs_task_definition" "bootstrap_db" {
 
   container_definitions = jsonencode([{
     name      = "psql"
-    image     = "postgres:16-alpine"
+    image     = "postgres:18-alpine"
     essential = true
 
     environment = [
