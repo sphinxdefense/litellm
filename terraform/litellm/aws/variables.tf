@@ -3,6 +3,12 @@ variable "region" {
   type        = string
 }
 
+variable "aws_assume_role" {
+  description = "AWS role to assume into for local exec tasks"
+  type        = string
+  default     = null
+}
+
 variable "tenant" {
   description = "Tenant slug — used as the prefix for every AWS resource the stack creates. Combined with var.env to form `<tenant>-litellm-<env>` (e.g. `acme-litellm-stage`)."
   type        = string
